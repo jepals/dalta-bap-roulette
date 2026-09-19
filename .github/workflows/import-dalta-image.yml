@@ -1,5 +1,8 @@
 name: Import Dalta image
-on: workflow_dispatch
+on:
+  push:
+    paths:
+      - '.github/workflows/import-dalta-image.yml'
 permissions:
   contents: write
 jobs:
