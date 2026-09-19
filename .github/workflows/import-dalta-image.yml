@@ -1,0 +1,16 @@
+name: Import Dalta image
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl -fL "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6858aa950a7b625cb23aebad534041ee995746c1311f7d7ebd75eb39fcc92a55.jpg" -o dalta-notice-original.jpg
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dalta-notice-original.jpg
+          git commit -m "Add Dalta notice image"
+          git push
