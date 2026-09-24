@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">\n<meta name="color-scheme" content="light">
-<title>꿀떡 먹은 달타 - 검증판 v5</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="color-scheme" content="light">
+<title>꿀떡 먹은 달타 - 원본보존 검증판 v6</title>
 <style>
 :root{color-scheme:only light;--ink:#493426;--gold:#efa928;--cream:#fff8e9;--red:#ef6c63;--green:#5ac58a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -27,7 +28,7 @@ button{font:inherit}
 .status.bump{animation:statusBump .35s ease}
 .progress{position:absolute;top:72px;left:50%;transform:translateX(-50%);z-index:19;width:min(72%,520px);height:8px;border-radius:99px;background:#7c5c3633;overflow:hidden}.progress i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#f1b22e,#f17160)}
 .actor{position:absolute;left:0;top:0;width:100px;border:0;background:none;padding:0;z-index:10;transform-origin:50% 100%;touch-action:manipulation;cursor:pointer;filter:drop-shadow(0 8px 6px #55341342)}
-.actor img{display:block;width:100%;height:auto;pointer-events:none;user-select:none}.actor:disabled{cursor:default}.actor.idle{animation:idleBob 1.35s ease-in-out infinite alternate}.actor.peek{filter:drop-shadow(0 0 7px #ffd74d) drop-shadow(0 0 18px #ffc44d)}
+.actor img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;object-fit:contain}.actor:disabled{cursor:default}.actor.idle{animation:idleBob 1.35s ease-in-out infinite alternate}.actor.peek{filter:drop-shadow(0 0 7px #ffd74d) drop-shadow(0 0 18px #ffc44d)}
 .actor.happy{animation:happy .42s ease 3}.actor.wrong{animation:wrong .35s ease 3;filter:drop-shadow(0 0 11px #ff544a)}
 .actor.correct{animation:happy .42s ease 3;filter:drop-shadow(0 0 8px #fff) drop-shadow(0 0 24px #ffd34f)}
 .shadow{position:absolute;z-index:4;width:70px;height:17px;background:#35511e33;border-radius:50%;filter:blur(2px);transform:translate(-50%,-50%)}
@@ -59,13 +60,13 @@ button{font:inherit}
 <div class="flower f1">🌼</div><div class="flower f2">🌼</div><div class="flower f3">🌸</div><div class="flower f4">🌼</div>
 <div id="status" class="status">준비!</div><div class="progress"><i id="bar"></i></div>
 <div id="tteok" class="tteok"></div><div id="bubble" class="bubble">냠!</div>
-<img class="mascot" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JhwBap0IpZBN9h7incqvdGpu6F/332ef4f4-3a6a-462b-ba28-127c97bde53e.png" alt="꿀즙이"><div id="mascotTalk" class="mascotTalk">달타를 잘 봐!</div>
+<img class="mascot" src="./assets/kkultteok/gguljeubi-exact.webp" alt="꿀즙이"><div id="mascotTalk" class="mascotTalk">달타를 잘 봐!</div>
 <div class="hint">달타 자체를 클릭하세요</div><div id="flash" class="flash"></div>
-<div id="start" class="start"><div class="startCard"><div class="title"><b>꿀떡</b> 먹은<br>달타 찾기</div><div class="startHero"><img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JhwBap0IpZBN9h7incqvdGpu6F/c729b54f-725c-4674-94a3-d0350b42bada.png" alt="한복 달타"></div><div class="desc">꿀떡을 먹은 달타를 기억하세요.<br>달타들이 뛰어다닌 뒤, 그 달타를 직접 클릭!</div><button id="startBtn" class="btn">게임 시작 🍯</button></div></div>
+<div id="start" class="start"><div class="startCard"><div class="title"><b>꿀떡</b> 먹은<br>달타 찾기</div><div class="startHero"><img src="./assets/kkultteok/dalta-sprite-v11.webp" alt="한복 달타"></div><div class="desc">꿀떡을 먹은 달타를 기억하세요.<br>달타들이 뛰어다닌 뒤, 그 달타를 직접 클릭!</div><button id="startBtn" class="btn">게임 시작 🍯</button></div></div>
 <div id="over" class="gameover"><div class="overCard"><h2>게임 오버!</h2><div id="result" class="result"></div><button id="again" class="btn">다시 도전 🍯</button></div></div>
 </div></div>
 <script>
-const IMG='https://d2ol7oe51mr4n9.cloudfront.net/user_3JhwBap0IpZBN9h7incqvdGpu6F/c729b54f-725c-4674-94a3-d0350b42bada.png',stage=document.getElementById('stage'),statusEl=document.getElementById('status'),bar=document.getElementById('bar'),tteok=document.getElementById('tteok'),bubble=document.getElementById('bubble'),talk=document.getElementById('mascotTalk');
+const IMG='./assets/kkultteok/dalta-sprite-v11.webp',stage=document.getElementById('stage'),statusEl=document.getElementById('status'),bar=document.getElementById('bar'),tteok=document.getElementById('tteok'),bubble=document.getElementById('bubble'),talk=document.getElementById('mascotTalk');
 let round=1,score=0,combo=0,lives=3,target=0,actors=[],slotFor=[],canPick=false,timer=null,muted=false,audio=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function count(){return round<4?3:round<7?4:5}
@@ -74,7 +75,7 @@ function say(t){statusEl.textContent=t;statusEl.classList.remove('bump');void st
 function mTalk(t,ms){talk.textContent=t;talk.classList.add('on');setTimeout(()=>talk.classList.remove('on'),ms||900)}
 function tone(f,d,type){if(muted)return;try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();let o=audio.createOscillator(),g=audio.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,audio.currentTime);g.gain.exponentialRampToValueAtTime(.09,audio.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+d/1000);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+d/1000+.02)}catch(e){}}
 function sfx(k){if(k==='eat'){tone(620,90);setTimeout(()=>tone(880,120),80)}if(k==='move')tone(240,55,'triangle');if(k==='ok'){tone(650,90);setTimeout(()=>tone(880,110),90);setTimeout(()=>tone(1080,160),185)}if(k==='bad')tone(160,250,'sawtooth')}
-function metrics(){let w=stage.clientWidth,h=stage.clientHeight,n=actors.length||count();let aw=Math.max(54,Math.min(125,(w-22)/n*.73));if(innerWidth<500)aw=Math.max(50,Math.min(77,(w-12)/n*.88));let ah=aw*1.995,ground=h*.28,baseY=h-ground-ah+12;let xs=[];for(let i=0;i<n;i++)xs.push((i+.5)*w/n-aw/2);return{w,h,aw,ah,baseY,xs}}
+function metrics(){let w=stage.clientWidth,h=stage.clientHeight,n=actors.length||count();let aw=Math.max(54,Math.min(125,(w-22)/n*.73));if(innerWidth<500)aw=Math.max(50,Math.min(77,(w-12)/n*.88));let ah=aw*2.189,ground=h*.28,baseY=h-ground-ah+12;let xs=[];for(let i=0;i<n;i++)xs.push((i+.5)*w/n-aw/2);return{w,h,aw,ah,baseY,xs}}
 function posForSlot(slot){let m=metrics();return{x:m.xs[slot],y:m.baseY,w:m.aw,h:m.ah}}
 function makeActors(){actors.forEach(a=>a.remove());actors=[];slotFor=[];let n=count();for(let i=0;i<n;i++){let b=document.createElement('button');b.className='actor idle';b.dataset.id=i;b.disabled=true;b.innerHTML='<img src="'+IMG+'" alt="달타">';b.onclick=()=>pick(i,b);stage.appendChild(b);actors.push(b);slotFor[i]=i}placeAll(false)}
 function placeAll(anim){let m=metrics();actors.forEach((a,id)=>{let p=posForSlot(slotFor[id]);a.style.width=p.w+'px';if(!anim)a.style.transition='none';a.style.left=p.x+'px';a.style.top=p.y+'px'});if(!anim)requestAnimationFrame(()=>actors.forEach(a=>a.style.transition=''))}
