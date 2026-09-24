@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>꿀떡 먹은 달타 - 모바일 수정 테스트</title>
+<title>꿀떡 먹은 달타 - 모바일 이미지 수정 v3</title>
 <style>
 :root{--ink:#493426;--gold:#efa928;--cream:#fff8e9;--red:#ef6c63;--green:#5ac58a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -59,13 +59,13 @@ button{font:inherit}
 <div class="flower f1">🌼</div><div class="flower f2">🌼</div><div class="flower f3">🌸</div><div class="flower f4">🌼</div>
 <div id="status" class="status">준비!</div><div class="progress"><i id="bar"></i></div>
 <div id="tteok" class="tteok"></div><div id="bubble" class="bubble">냠!</div>
-<img class="mascot" src="./assets/gguljeubi-mobile.svg" alt="꿀즙이"><div id="mascotTalk" class="mascotTalk">달타를 잘 봐!</div>
+<img class="mascot" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JhwBap0IpZBN9h7incqvdGpu6F/332ef4f4-3a6a-462b-ba28-127c97bde53e.png" alt="꿀즙이"><div id="mascotTalk" class="mascotTalk">달타를 잘 봐!</div>
 <div class="hint">달타 자체를 클릭하세요</div><div id="flash" class="flash"></div>
-<div id="start" class="start"><div class="startCard"><div class="title"><b>꿀떡</b> 먹은<br>달타 찾기</div><div class="startHero"><img src="./assets/dalta-front-mobile.svg" alt="한복 달타"></div><div class="desc">꿀떡을 먹은 달타를 기억하세요.<br>달타들이 뛰어다닌 뒤, 그 달타를 직접 클릭!</div><button id="startBtn" class="btn">게임 시작 🍯</button></div></div>
+<div id="start" class="start"><div class="startCard"><div class="title"><b>꿀떡</b> 먹은<br>달타 찾기</div><div class="startHero"><img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JhwBap0IpZBN9h7incqvdGpu6F/3fa40e25-da29-4bcb-8352-9f821e15f714.png" alt="한복 달타"></div><div class="desc">꿀떡을 먹은 달타를 기억하세요.<br>달타들이 뛰어다닌 뒤, 그 달타를 직접 클릭!</div><button id="startBtn" class="btn">게임 시작 🍯</button></div></div>
 <div id="over" class="gameover"><div class="overCard"><h2>게임 오버!</h2><div id="result" class="result"></div><button id="again" class="btn">다시 도전 🍯</button></div></div>
 </div></div>
 <script>
-const IMG='./assets/dalta-front-mobile.svg',stage=document.getElementById('stage'),statusEl=document.getElementById('status'),bar=document.getElementById('bar'),tteok=document.getElementById('tteok'),bubble=document.getElementById('bubble'),talk=document.getElementById('mascotTalk');
+const IMG='https://d2ol7oe51mr4n9.cloudfront.net/user_3JhwBap0IpZBN9h7incqvdGpu6F/3fa40e25-da29-4bcb-8352-9f821e15f714.png',stage=document.getElementById('stage'),statusEl=document.getElementById('status'),bar=document.getElementById('bar'),tteok=document.getElementById('tteok'),bubble=document.getElementById('bubble'),talk=document.getElementById('mascotTalk');
 let round=1,score=0,combo=0,lives=3,target=0,actors=[],slotFor=[],canPick=false,timer=null,muted=false,audio=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function count(){return round<4?3:round<7?4:5}
