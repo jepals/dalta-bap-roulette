@@ -1,0 +1,33 @@
+{
+  "ready": true,
+  "validated_at": "2026-09-25T06:29:27+09:00",
+  "test_url": "https://dalta-bap-roulette.pages.dev/kkultteok-dalta-test-0924.html?v=final-v6",
+  "page": "kkultteok-dalta-test-0924.html",
+  "page_version": "원본보존 검증판 v6",
+  "assets": {
+    "dalta": "assets/kkultteok/dalta-sprite-v11.webp",
+    "gguljeubi": "assets/kkultteok/gguljeubi-exact.webp"
+  },
+  "validation": {
+    "live_render": true,
+    "mobile_viewport": "390x844",
+    "desktop_viewport": "1280x900",
+    "request_failures": 0,
+    "page_errors": 0,
+    "images_loaded": {
+      "dalta": "280x613",
+      "gguljeubi": "220x220"
+    },
+    "correct_pick_loop": "pass",
+    "wrong_pick_loop": "pass",
+    "round7_five_actor_layout_mobile": "pass-no-overlap-within-stage",
+    "round7_five_actor_layout_desktop": "pass-no-overlap-within-stage",
+    "gameover_loop": "pass",
+    "main_dalta_bap_roulette_untouched": true
+  },
+  "notes": [
+    "Dalta sprite is a single coherent transparent full-body asset; no detached head/body or square crop.",
+    "Gguljeubi uses the validated exact jar mascot asset with cork, bottle rim, honey-flow silhouette, large eyes, tiny brows, single tooth, short limbs.",
+    "Live Cloudflare Pages deployment was exercised in headless Chromium at mobile and desktop sizes, not only checked in the repository."
+  ]
+}
