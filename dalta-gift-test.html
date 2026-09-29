@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DALTA GIFT CLEAN TEST</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eee;font-family:system-ui,sans-serif}
+#wrap{position:fixed;inset:0;background:
+linear-gradient(45deg,#d7d7d7 25%,transparent 25%) 0 0/32px 32px,
+linear-gradient(-45deg,#d7d7d7 25%,transparent 25%) 0 16px/32px 32px,
+linear-gradient(45deg,transparent 75%,#d7d7d7 75%) 16px -16px/32px 32px,
+linear-gradient(-45deg,transparent 75%,#d7d7d7 75%) -16px 0/32px 32px,#fafafa}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:transparent}
+video{position:fixed;width:1px;height:1px;opacity:.001;left:-100px;top:-100px}
+#ui{position:fixed;left:16px;top:16px;z-index:20;background:rgba(22,22,26,.88);color:#fff;padding:14px 16px;border-radius:14px;box-shadow:0 6px 22px rgba(0,0,0,.3)}
+button{font:inherit;border:0;border-radius:10px;padding:8px 12px;margin:9px 6px 0 0;cursor:pointer}
+.sub{font-size:12px;opacity:.78;margin-top:5px}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c" width="2560" height="1440"></canvas></div>
+<video id="v" preload="auto" playsinline crossorigin="anonymous" src="https://dalta-gift.jepalss1.workers.dev/dalta_gift_overlay_qhd.webm"></video>
+<div id="ui">
+<div>달타 누적 유저: <b id="cnt">확인 중</b></div>
+<div>상태: <span id="status">테스트 준비 중</span></div>
+<button id="play">500만 축하 테스트</button><button id="reset">초기화</button>
+<div class="sub">검은 프린지 제거 + 글씨 판넬 내부 반투명 보정본</div>
+</div>
+<script>
+(()=>{
+const API='https://chapi.sooplive.co.kr/api/dalta20/station';
+const v=document.getElementById('v'),c=document.getElementById('c'),cnt=document.getElementById('cnt'),status=document.getElementById('status');
+const gl=c.getContext('webgl',{alpha:true,premultipliedAlpha:false,antialias:true});
+if(!gl){status.textContent='WebGL 초기화 실패';return}
+const vs='attribute vec2 p;attribute vec2 uv;varying vec2 vuv;void main(){gl_Position=vec4(p,0.,1.);vuv=vec2(uv.x,1.0-uv.y);}';
+const fs='precision highp float;uniform sampler2D tex;uniform vec2 res;uniform float time;varying vec2 vuv;float S(float x,float a,float b){return smoothstep(a,b,x);}void main(){vec4 c0=texture2D(tex,vuv);vec2 d=1.0/res;vec3 av=(texture2D(tex,vuv+vec2(d.x,0.)).rgb+texture2D(tex,vuv-vec2(d.x,0.)).rgb+texture2D(tex,vuv+vec2(0.,d.y)).rgb+texture2D(tex,vuv-vec2(0.,d.y)).rgb)*.25;float mx=max(c0.r,max(c0.g,c0.b));float mn=min(c0.r,min(c0.g,c0.b));float sat=mx-mn;float lum=dot(c0.rgb,vec3(.2126,.7152,.0722));float signal=max(mx,sat*1.8);float clean=S(signal,.065,.24);float a=c0.a*clean;float edge=length(c0.rgb-av);vec3 rgb=clamp(c0.rgb/mix(.40,1.0,clean),0.,1.);if(time>=9.95){float L=S(vuv.x,.25,.29);float R=1.0-S(vuv.x,.71,.75);float T=S(vuv.y,.55,.61);float B=1.0-S(vuv.y,.89,.93);float inside=L*R*T*B;float detail=S(edge,.026,.11);float keep=max(detail,S(lum,.88,.99)*S(edge,.012,.06));float pa=mix(.12,1.0,keep);a*=mix(1.0,pa,inside);}if(time>15.08)a*=clamp(1.0-(time-15.08)/1.5,0.0,1.0);if(a<.006)discard;gl_FragColor=vec4(rgb,a);}';
+function mk(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x}
+const pr=gl.createProgram();gl.attachShader(pr,mk(gl.VERTEX_SHADER,vs));gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
+const q=new Float32Array([-1,-1,0,0,1,-1,1,0,-1,1,0,1,-1,1,0,1,1,-1,1,0,1,1,1,1]);
+const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,q,gl.STATIC_DRAW);
+const p=gl.getAttribLocation(pr,'p'),u=gl.getAttribLocation(pr,'uv');gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,2,gl.FLOAT,false,16,0);gl.enableVertexAttribArray(u);gl.vertexAttribPointer(u,2,gl.FLOAT,false,16,8);
+const tx=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tx);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+gl.uniform1i(gl.getUniformLocation(pr,'tex'),0);gl.uniform2f(gl.getUniformLocation(pr,'res'),2560,1440);const tloc=gl.getUniformLocation(pr,'time');gl.clearColor(0,0,0,0);
+function draw(){gl.viewport(0,0,2560,1440);gl.clear(gl.COLOR_BUFFER_BIT);if(v.readyState>=2){gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tx);try{gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v)}catch(e){}gl.uniform1f(tloc,v.currentTime||0);gl.drawArrays(gl.TRIANGLES,0,6)}requestAnimationFrame(draw)}draw();
+document.getElementById('play').onclick=async()=>{v.pause();v.currentTime=0;v.volume=1;try{await v.play();status.textContent='테스트 연출 재생 중'}catch(e){status.textContent='버튼을 다시 눌러주세요'}};
+document.getElementById('reset').onclick=()=>{v.pause();v.currentTime=0;status.textContent='초기화 완료'};
+fetch(API,{cache:'no-store'}).then(r=>r.json()).then(j=>{const n=Number(j?.station?.upd?.total_view_cnt||0);cnt.textContent=n.toLocaleString('ko-KR')+'명';status.textContent='테스트 준비 완료'}).catch(()=>status.textContent='테스트 준비 완료');
+})();
+</script>
+</body>
+</html>
