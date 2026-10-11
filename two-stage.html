@@ -11,7 +11,7 @@
 <div class="grid"><section class="card"><div class="stagebar"><span id="s1" class="step active">1차 카테고리</span><span class="arrow">›</span><span id="s2" class="step">2차 메뉴</span></div><div id="stageNote" class="stageNote">먼저 음식 카테고리를 뽑아요.</div><div class="wheel"><div class="ptr"></div><canvas id="cv" width="700" height="700"></canvas><div class="center"><img src="https://cdn.openart.ai/openart-uploads/production/2026-09/create-image/brkQkTCGkeUbnzKyd2Yd/fce9d369-dfed-41a1-81eb-470a7b276948_1789631429005_fe359f3b.png"><small id="centerText">1차<br>카테고리</small></div></div><button id="spin">🎯 1차 카테고리 룰렛 돌리기</button><button id="restart">↩ 처음부터 다시 뽑기</button><div class="res"><img src="https://cdn.openart.ai/openart-uploads/production/2026-09/create-image/brkQkTCGkeUbnzKyd2Yd/fce9d369-dfed-41a1-81eb-470a7b276948_1789631429005_fe359f3b.png"><small id="rc">1차 준비</small><b id="rf">카테고리를 먼저 뽑아주세요</b></div></section>
 <aside class="card"><h3>빠른 조건</h3><div id="opts"></div><h3 style="margin-top:17px">카테고리</h3><div id="cats"></div><div class="actions"><button id="on">전체 선택</button><button id="off">전체 해제</button></div><div id="meta"></div><h3 style="margin-top:17px">최근 결과</h3><div id="hist">아직 없음</div><div class="mini"><img src="https://cdn.openart.ai/openart-uploads/production/2026-09/create-image/brkQkTCGkeUbnzKyd2Yd/fce9d369-dfed-41a1-81eb-470a7b276948_1789631429005_fe359f3b.png"><span>달타야 오늘은 룰렛이 골라주는 걸 먹자 🎯</span></div></aside></div></main>
 <script>
-const F={
+const FULL_MENU={
 "김밥":["야채김밥","참치김밥","치즈김밥","돈까스김밥","제육김밥","불고기김밥","멸치김밥","매운어묵김밥","계란김밥","묵은지김밥","새우김밥","유부김밥"],
 "돈까스":["등심돈까스","안심돈까스","치즈돈까스","고구마치즈돈까스","왕돈까스","경양식돈까스","일식돈까스","매운돈까스","카레돈까스","돈까스덮밥"],
 "냉면":["물냉면","비빔냉면","회냉면","코다리냉면","물비빔냉면","평양냉면","함흥냉면"],
@@ -24,11 +24,24 @@ const F={
 "보쌈":["기본보쌈","삼겹보쌈","목살보쌈","마늘보쌈","굴보쌈","김치보쌈","보쌈정식"],
 "햄버거":["불고기버거","치즈버거","더블치즈버거","치킨버거","새우버거","베이컨버거","통새우버거","핫치킨버거","에그버거","수제버거"],
 "샌드위치":["에그샌드위치","햄치즈샌드위치","클럽샌드위치","치킨샌드위치","참치샌드위치","BLT샌드위치","불고기샌드위치","새우샌드위치","베이컨에그샌드위치","파니니"]
-},C=Object.keys(F),sp=["매운","불족발","고추장","주물럭","떡볶이","라볶이"],sn=[],mx=[]
+};
+const kstDay=()=>new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
+const isSingleMenuDay=()=>kstDay()==="2026-10-11";
+const SPECIAL_CAT="파스타",SPECIAL_FOOD="쉬림프 알리 올리오";
+const SINGLE_MENU={ [SPECIAL_CAT]:[SPECIAL_FOOD] };
+let F=isSingleMenuDay()?SINGLE_MENU:FULL_MENU,C=Object.keys(F);
+const sp=["매운","불족발","고추장","주물럭","떡볶이","라볶이"],sn=[],mx=[]
 const $=x=>document.getElementById(x),cv=$("cv"),x=cv.getContext("2d");
-let shown=[],ang=0,busy=0,H=[],stage=1,chosenCat=null,pendingWinner=null;
+let shown=[],ang=0,busy=0,H=[],stage=isSingleMenuDay()?2:1,chosenCat=isSingleMenuDay()?SPECIAL_CAT:null,pendingWinner=null;
 $("opts").innerHTML=[["ns","🍺 술안주 제외"],["np","🌶️ 매운 음식 제외"],["one","👤 1인분 메뉴만"],["snd","🔊 룰렛 효과음"]].map((a,i)=>`<div class=row><span>${a[1]}</span><label class=sw><input id=${a[0]} type=checkbox ${i==3?"checked":""}><i></i></label></div>`).join("");
 $("cats").innerHTML=C.map(c=>`<label><input type=checkbox checked value="${c}"> ${c}</label>`).join("");
+function syncSingleMenuLayout(){
+  const on=isSingleMenuDay();
+  document.querySelector("aside.card").style.display=on?"none":"";
+  document.querySelector(".grid").style.gridTemplateColumns=on?"minmax(0,1fr)":"";
+  document.querySelector(".stagebar").style.display=on?"none":"";
+}
+syncSingleMenuLayout();
 
 const has=(n,a)=>a.some(t=>n.includes(t));
 function filteredMenus(cat){
@@ -56,6 +69,12 @@ function draw(items){
   let N=items.length,col=["#2ac1bc","#60d7d2","#ffd166","#ff9f6e","#a8dadc","#81c784","#90caf9","#f6bd60","#84a59d","#f28482","#b8c0ff","#cdb4db"];
   let fs=N<=16?22:N<=24?17:N<=36?13:10;
   let maxChars=N<=18?8:N<=30?6:5;
+  if(N===1){
+    x.beginPath();x.arc(350,350,320,0,Math.PI*2);x.fillStyle=col[0];x.fill();
+    x.fillStyle="#173636";x.font="900 30px sans-serif";x.textAlign="center";
+    x.fillText(items[0],350,252,540);
+    return;
+  }
   for(let i=0;i<N;i++){
     let s=-Math.PI/2+i*2*Math.PI/N,e=-Math.PI/2+(i+1)*2*Math.PI/N;
     x.beginPath();x.moveTo(350,350);x.arc(350,350,320,s,e);x.closePath();x.fillStyle=col[i%col.length];x.fill();
@@ -82,11 +101,16 @@ function setStageUI(){
     shown=[...menus].sort(()=>Math.random()-.5).slice(0,Math.min(14,menus.length));draw(shown);
     $("meta").textContent=`선택된 카테고리: ${chosenCat} · 실제 추첨 후보 ${menus.length}개 · 룰렛 표시 최대 14개`;
   }
+  if(isSingleMenuDay()){
+    $("stageNote").textContent="오늘(10월 11일) 한정! 쉬림프 알리 올리오 하나만 나와요.";
+    $("spin").textContent="🍽️ 쉬림프 알리 올리오 룰렛 돌리기";
+    $("restart").style.display="none";
+  }
 }
 function resetToStage1(clearResult=false){
   if(busy)return;
-  stage=1;chosenCat=null;pendingWinner=null;ang=0;
-  if(clearResult){$("rc").textContent="1차 준비";$("rf").textContent="카테고리를 먼저 뽑아주세요";}
+  stage=isSingleMenuDay()?2:1;chosenCat=isSingleMenuDay()?SPECIAL_CAT:null;pendingWinner=null;ang=0;
+  if(clearResult){$("rc").textContent=isSingleMenuDay()?"오늘의 한정 메뉴":"1차 준비";$("rf").textContent=isSingleMenuDay()?SPECIAL_FOOD:"카테고리를 먼저 뽑아주세요";}
   setStageUI();
 }
 document.querySelectorAll("#cats input,#ns,#np,#one").forEach(e=>e.addEventListener("change",()=>resetToStage1(true)));
@@ -146,9 +170,22 @@ $("spin").onclick=()=>{
     spinWheel(visualPool,w=>{
       $("rc").textContent=`최종 당첨 · ${chosenCat}`;$("rf").textContent=w;
       H.unshift(`${chosenCat} · ${w}`);H=H.slice(0,8);$("hist").innerHTML=H.map(n=>`<span>${n}</span>`).join("");
-      win();$("spin").textContent="🎲 같은 카테고리에서 다시 뽑기";$("restart").style.display="block";
+      win();$("spin").textContent=isSingleMenuDay()?"🍽️ 다시 돌리기":"🎲 같은 카테고리에서 다시 뽑기";$("restart").style.display=isSingleMenuDay()?"none":"block";
     },finalWinner);
   }
 };
 setStageUI();
+if(isSingleMenuDay()){$("rc").textContent="오늘의 한정 메뉴";$("rf").textContent=SPECIAL_FOOD;}
+let previousSingleMenuDay=isSingleMenuDay();
+setInterval(()=>{
+  const next=isSingleMenuDay();
+  if(next===previousSingleMenuDay||busy)return;
+  previousSingleMenuDay=next;
+  F=next?SINGLE_MENU:FULL_MENU;C=Object.keys(F);
+  $("cats").innerHTML=C.map(c=>`<label><input type=checkbox checked value="${c}"> ${c}</label>`).join("");
+  document.querySelectorAll("#cats input").forEach(e=>e.addEventListener("change",()=>resetToStage1(true)));
+  syncSingleMenuLayout();
+  H=[];$("hist").textContent="아직 없음";
+  resetToStage1(true);
+},10000);
 </script></body></html>
