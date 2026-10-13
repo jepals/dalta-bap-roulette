@@ -29,6 +29,7 @@ const kstDay=()=>new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
 const isSingleMenuDay=()=>kstDay()==="2026-10-11";
 const SPECIAL_CAT="파스타",SPECIAL_FOOD="쉬림프 알리 올리오";
 const SINGLE_MENU={ [SPECIAL_CAT]:[SPECIAL_FOOD] };
+const HIDDEN_MARK="❓ HIDDEN"; // The actual dish remains concealed until the secret prize lands.
 let F=isSingleMenuDay()?SINGLE_MENU:FULL_MENU,C=Object.keys(F);
 const sp=["매운","불족발","고추장","주물럭","떡볶이","라볶이"],sn=[],mx=[]
 const $=x=>document.getElementById(x),cv=$("cv"),x=cv.getContext("2d");
@@ -87,11 +88,11 @@ function setStageUI(){
   $("s1").classList.toggle("active",stage===1);$("s2").classList.toggle("active",stage===2);
   if(stage===1){
     $("centerText").innerHTML="1차<br>카테고리";
-    $("stageNote").textContent="모든 최종 메뉴가 같은 확률이 되도록 카테고리를 뽑아요.";
+    $("stageNote").textContent="일반 메뉴와 비밀 메뉴까지 공정하게 추첨해요.";
     $("spin").textContent="🎯 1차 카테고리 룰렛 돌리기";
     $("restart").style.display="none";
     shown=enabledCats();draw(shown);
-    $("meta").textContent=`1차 카테고리 ${shown.length}개 · 대표 메뉴 ${allFilteredCount()}개 · 모든 최종 메뉴 동일 확률`;
+    $("meta").textContent=`1차 카테고리 ${shown.length}개 · 일반 메뉴 ${allFilteredCount()}개 · 비밀 메뉴 1개 · 최종 메뉴 균등 확률`;
   }else{
     $("centerText").innerHTML="2차<br>메뉴";
     let menus=filteredMenus(chosenCat);
@@ -155,8 +156,11 @@ $("spin").onclick=()=>{
     if(!cats.length)return alert("조건에 맞는 카테고리가 없어요. 필터를 조금 풀어주세요.");
     const allPairs=[];
     for(const c of cats) for(const n of filteredMenus(c)) allPairs.push({c,n});
-    const picked=allPairs[Math.floor(Math.random()*allPairs.length)];
-    chosenCat=picked.c; pendingWinner=picked.n;
+    // Every enabled regular dish and the one hidden dish have equal probability.
+    const pickedIndex=Math.floor(Math.random()*(allPairs.length+1));
+    const isHiddenPick=pickedIndex===allPairs.length;
+    const picked=isHiddenPick?allPairs[Math.floor(Math.random()*allPairs.length)]:allPairs[pickedIndex];
+    chosenCat=picked.c; pendingWinner=isHiddenPick?SPECIAL_FOOD:picked.n;
     spinWheel(cats,w=>{
       $("rc").textContent="1차 카테고리 당첨";$("rf").textContent=w;stageWin();
       setTimeout(()=>{stage=2;ang=0;setStageUI()},650);
@@ -164,14 +168,21 @@ $("spin").onclick=()=>{
   }else{
     let menus=filteredMenus(chosenCat);
     if(!menus.length){resetToStage1(true);return alert("이 카테고리에 조건에 맞는 메뉴가 없어요.");}
-    const finalWinner=(pendingWinner&&menus.includes(pendingWinner))?pendingWinner:menus[Math.floor(Math.random()*menus.length)];
+    // Re-draws within a category also keep a small chance of the hidden result.
+    const isHiddenPick=!isSingleMenuDay()&&(pendingWinner===SPECIAL_FOOD||(pendingWinner===null&&Math.random()<1/(allFilteredCount()+1)));
+    const finalWinner=isHiddenPick?SPECIAL_FOOD:(pendingWinner&&menus.includes(pendingWinner)?pendingWinner:menus[Math.floor(Math.random()*menus.length)]);
     pendingWinner=null;
-    let visualPool=[finalWinner,...menus.filter(n=>n!==finalWinner).sort(()=>Math.random()-.5).slice(0,Math.min(13,menus.length-1))].sort(()=>Math.random()-.5);
+    const wheelWinner=isHiddenPick?HIDDEN_MARK:finalWinner;
+    let visualPool=isHiddenPick
+      ?[HIDDEN_MARK,...menus.sort(()=>Math.random()-.5).slice(0,13)].sort(()=>Math.random()-.5)
+      :[finalWinner,...menus.filter(n=>n!==finalWinner).sort(()=>Math.random()-.5).slice(0,Math.min(13,menus.length-1))].sort(()=>Math.random()-.5);
     spinWheel(visualPool,w=>{
-      $("rc").textContent=`최종 당첨 · ${chosenCat}`;$("rf").textContent=w;
-      H.unshift(`${chosenCat} · ${w}`);H=H.slice(0,8);$("hist").innerHTML=H.map(n=>`<span>${n}</span>`).join("");
+      const result=isHiddenPick?SPECIAL_FOOD:w;
+      $("rc").textContent=isHiddenPick?"최종 당첨 · 히든":`최종 당첨 · ${chosenCat}`;
+      $("rf").textContent=result;
+      H.unshift(`${isHiddenPick?"🎁 히든":chosenCat} · ${result}`);H=H.slice(0,8);$("hist").innerHTML=H.map(n=>`<span>${n}</span>`).join("");
       win();$("spin").textContent=isSingleMenuDay()?"🍽️ 다시 돌리기":"🎲 같은 카테고리에서 다시 뽑기";$("restart").style.display=isSingleMenuDay()?"none":"block";
-    },finalWinner);
+    },wheelWinner);
   }
 };
 setStageUI();
